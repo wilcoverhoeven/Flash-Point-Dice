@@ -1,0 +1,21 @@
+{
+  "name": "flash-point-fire-rescue-dice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.tsx",
+  "scripts": {
+    "build": "./node_modules/.bin/esbuild ./src/index.tsx --bundle --outfile=./index.js",
+    "watch": "./node_modules/.bin/esbuild ./src/index.tsx --bundle --outfile=./index.js --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/react": "^18.3.6",
+    "@types/react-dom": "^18.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.23.1"
+  }
+}
