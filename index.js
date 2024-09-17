@@ -1092,7 +1092,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useReducer(reducer, initialArg, init);
           }
-          function useRef(initialValue) {
+          function useRef2(initialValue) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
@@ -1886,7 +1886,7 @@
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo;
           exports.useReducer = useReducer;
-          exports.useRef = useRef;
+          exports.useRef = useRef2;
           exports.useState = useState2;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
@@ -23639,7 +23639,7 @@
     onChange(listener) {
       this.listener = listener;
     }
-    offChange(listener) {
+    offChange() {
       this.listener = void 0;
     }
     emit() {
@@ -23673,12 +23673,40 @@
   };
   var App = () => {
     const [results, setResults] = (0, import_react.useState)(resultsStore.getResult());
+    const timeoutId = (0, import_react.useRef)();
+    const animate = (doneCallback) => {
+      if (timeoutId.current) return;
+      let [r, b] = results;
+      let count = 0;
+      const step = () => {
+        setResults([r, b]);
+        r = r % 6 + 1;
+        b = r % 8 + 1;
+        count++;
+        if (count > 6) {
+          doneCallback();
+          timeoutId.current = void 0;
+        } else {
+          timeoutId.current = setTimeout(step, 100);
+        }
+      };
+      timeoutId.current = setTimeout(step, 100);
+    };
+    (0, import_react.useEffect)(() => {
+      return () => {
+        if (timeoutId.current) clearTimeout(timeoutId.current);
+      };
+    }, []);
     (0, import_react.useEffect)(() => {
       const handler = () => setResults(resultsStore.getResult());
       resultsStore.onChange(handler);
-      return () => resultsStore.offChange(handler);
-    });
-    const onClick = () => resultsStore.next();
+      return () => resultsStore.offChange();
+    }, []);
+    const onClick = () => {
+      animate(() => {
+        resultsStore.next();
+      });
+    };
     return /* @__PURE__ */ import_react.default.createElement("div", { onClick, style: containerStyle }, /* @__PURE__ */ import_react.default.createElement("i", { className: `df-solid-small-dot-d6-${results[0]}`, style: redDiceStyle }), /* @__PURE__ */ import_react.default.createElement("i", { className: `df-d8-${results[1]}`, style: blackDiceStyle }));
   };
 

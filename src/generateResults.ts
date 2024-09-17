@@ -71,7 +71,7 @@ class ResultsStore {
         this.listener = listener;
     }
 
-    public offChange(listener: () => void) {
+    public offChange() {
         this.listener = undefined;
     }
 

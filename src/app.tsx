@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 import { resultsStore } from './generateResults'
 
 const redDiceStyle = {
@@ -23,13 +23,47 @@ export const App: FC = () => {
 
     const [results, setResults] = useState(resultsStore.getResult());
 
+    const timeoutId = useRef<number>();
+
+    const animate = (doneCallback: () => void) => {
+        if (timeoutId.current) return;
+
+        let [r, b] = results;
+        let count = 0;
+
+        const step = () => {
+            setResults([r, b]);
+            r = r % 6 + 1;
+            b = r % 8 + 1;
+            count++;
+            if (count > 6) {
+                doneCallback();
+                timeoutId.current = undefined;
+            } else {
+                timeoutId.current = setTimeout(step, 100);
+            }
+        };
+
+        timeoutId.current = setTimeout(step, 100);
+    }
+
+    useEffect(() => {
+        return () => {
+            if (timeoutId.current) clearTimeout(timeoutId.current);
+        }
+    }, [])
+
     useEffect(() => {
         const handler = () => setResults(resultsStore.getResult());
         resultsStore.onChange(handler);
-        return () => resultsStore.offChange(handler);
-    })
+        return () => resultsStore.offChange();
+    }, [])
 
-    const onClick = () => resultsStore.next();
+    const onClick = () => {
+        animate(() => {
+            resultsStore.next();
+        });
+    }
 
     return (
         <div onClick={onClick} style={containerStyle}>
